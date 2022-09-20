@@ -9,6 +9,7 @@ const app = express();
 
 // Importing JSON data
 const noteSource = require('./db/db.json');
+currentID = noteSource.length;
 
 app.use(express.urlencoded ( { extended: true }));
 app.use(express.json());
@@ -29,29 +30,31 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'));
 });
 
-function createNewNote(body, notesArray) {
-  const newNote = body;
-  if (!Array.isArray(notesArray))
-      notesArray = [];
-  
-  if (notesArray.length === 0)
-      notesArray.push(0);
+// Write function
+function createNewNote() {
+  fs.writeFile("db/db.json", JSON.stringify(noteSource), function (err) {
+      if (err) {
+          console.log("error")
+          return console.log(err);
+      }
 
-  body.id = notesArray[0];
-  notesArray[0]++;
-  notesArray.push(newNote);
-  
-  fs.writeFileSync(
-      path.join(__dirname, './db/db.json'),
-      JSON.stringify(notesArray, null, 2)
-  );
-  return newNote;
+      console.log("Success!");
+  });
 }
 
-//
-app.post('/api/notes', (req, res) => {
-  const newNote = createNewNote(req.body, noteSource);
-  res.json(newNote);
+// Sending new note object to database array via push
+app.post("/api/notes", function (req, res) {
+  var newNote = req.body;
+
+  newNote["id"] = currentID +1;
+  currentID++;
+  console.log(newNote);
+
+  noteSource.push(newNote);
+  // Calling write function to update database after each new entry
+  createNewNote();
+
+  return res.status(200).end();
 });
 
 // Setting up port
