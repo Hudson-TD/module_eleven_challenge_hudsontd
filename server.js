@@ -1,4 +1,4 @@
-// Global imports
+// Imports
 const express = require('express');
 const fs = require('fs');
 const path = require('path'); 
@@ -30,18 +30,6 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'));
 });
 
-// Write function
-function createNewNote() {
-  fs.writeFile("db/db.json", JSON.stringify(noteSource), function (err) {
-      if (err) {
-          console.log("error")
-          return console.log(err);
-      }
-
-      console.log("Success!");
-  });
-}
-
 // Sending new note object to database array via push
 app.post("/api/notes", function (req, res) {
   var newNote = req.body;
@@ -56,6 +44,18 @@ app.post("/api/notes", function (req, res) {
 
   return res.status(200).end();
 });
+
+// Write function
+function createNewNote() {
+  fs.writeFile("db/db.json", JSON.stringify(noteSource), function (err) {
+      if (err) {
+          console.log("error")
+          return console.log(err);
+      }
+
+      console.log("Success!");
+  });
+}
 
 // Setting up port
 app.listen(PORT, () =>
